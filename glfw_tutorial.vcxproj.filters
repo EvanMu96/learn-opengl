@@ -27,4 +27,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="vshader.v">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader.f">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

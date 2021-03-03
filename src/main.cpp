@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -8,45 +9,34 @@
 #include "io.h"
 
 constexpr GLfloat vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+	0.5f, 0.5f, 0.0f,   // 右上角
+	0.5f, -0.5f, 0.0f,  // 右下角
+	-0.5f, -0.5f, 0.0f, // 左下角
+	-0.5f, 0.5f, 0.0f   // 左上角
 };
 
-const char* vertex_shader_inline =
-"#version 400\n"
-"in vec3 vp;\n"
-"void main() {\n"
-"gl_Position = vec4(vp, 1.0);\n"
-"}\n";
+// 使用 vertices 的索引，避免重复点占用内存
+constexpr GLuint indices[] = {
+	0, 1, 3, 1, 2, 3
+};
 
-const char* fragment_shader_inline =
-"#version 400\n"
-"out vec4 frag_colour;"
-"void main() {"
-"  frag_colour = vec4(0.0, 0.5, 0.5, 1.0);"
-"}";
-
-void render_loop(GLFWwindow* window, GLuint shader_program, GLuint VAO, GLuint VBO)
+void render_loop(GLFWwindow* window, Shader& shader, GLuint VAO, GLuint VBO)
 {
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shader_program);
-		glBindVertexArray(VAO);
-		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		// update other events like input handling 
 		glfwPollEvents();
 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shader.Use();
+		glBindVertexArray(VAO);
+		// draw points 0-3 from the currently bound VAO with current in-use shader
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// release VAO
+		glBindVertexArray(0);
+		
 		glfwSwapBuffers(window);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-}
-
-void init_shader(GLuint shader, const char* const* shader_src)
-{
-	glShaderSource(shader, 1, shader_src, nullptr);
-	glCompileShader(shader);
 }
 
 int main()
@@ -71,33 +61,25 @@ int main()
 
 	glewInit();
 
-	GLuint VBO, VAO;
+	GLuint VBO, VAO, EBO;
 
 	glGenBuffers(1, &VBO); // VBO 对象 Vertex Buffer Object
 	glGenVertexArrays(1, &VAO); // VAO 对象 Vertex Array Object
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+	glGenBuffers(1, &EBO); // EBO 对象
 
-	init_shader(vs, &vertex_shader_inline);
-	init_shader(fs, &fragment_shader_inline);
-
-	GLuint shader_program = glCreateProgram();
-	glAttachShader(shader_program, fs);
-	glAttachShader(shader_program, vs);
-	glLinkProgram(shader_program);
-	
-	// 删除不用的 Shader 防止再次使用
-	glDeleteShader(fs);
-	glDeleteShader(vs);
-
+	// initialize
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
-	render_loop(window, shader_program, VAO, VBO);
+	Shader shader("vshader.v", "fshader.f");
+
+	render_loop(window, shader, VAO, VBO);
 
 	glfwTerminate();
 	return 0;
