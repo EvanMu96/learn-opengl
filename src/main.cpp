@@ -8,16 +8,16 @@
 
 #include "io.h"
 
-constexpr GLfloat vertices[] = {
-	0.5f, 0.5f, 0.0f,   // 右上角
-	0.5f, -0.5f, 0.0f,  // 右下角
-	-0.5f, -0.5f, 0.0f, // 左下角
-	-0.5f, 0.5f, 0.0f   // 左上角
+GLfloat vertices[] = {
+	// 位置              // 颜色
+	 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // 右下
+	-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // 左下
+	 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // 顶部
 };
 
 // 使用 vertices 的索引，避免重复点占用内存
 constexpr GLuint indices[] = {
-	0, 1, 3, 1, 2, 3
+	0, 1, 2
 };
 
 void render_loop(GLFWwindow* window, Shader& shader, GLuint VAO, GLuint VBO)
@@ -26,16 +26,24 @@ void render_loop(GLFWwindow* window, Shader& shader, GLuint VAO, GLuint VBO)
 	{
 		glfwPollEvents();
 
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 		shader.Use();
+
+		// 使用 uniform 更新传递到 shader program 的变量
+// 		GLfloat time_value = static_cast<GLfloat>(glfwGetTime());
+// 		GLfloat green_value = (sin(time_value) / 2) + 0.5f;
+// 		GLint vertex_color_loc = glGetUniformLocation(shader.GetShader(), "ourColor");
+// 		glUniform4f(vertex_color_loc, 0.0f, green_value, 0.0f, 1.0f);
+
+		// draw
 		glBindVertexArray(VAO);
-		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		// release VAO
+		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		
 		glfwSwapBuffers(window);
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		//std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
 
@@ -51,7 +59,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 	if (window == nullptr)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		spdlog::error("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -73,11 +81,13 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
 
-	Shader shader("vshader.v", "fshader.f");
+	Shader shader("shaders/vshader.v", "shaders/fshader.f");
 
 	render_loop(window, shader, VAO, VBO);
 

@@ -26,8 +26,8 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fshader.f" />
-    <None Include="vshader.v" />
+    <None Include="shaders\fshader.f" />
+    <None Include="shaders\vshader.v" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

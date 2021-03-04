@@ -19,6 +19,7 @@ class Shader
 public:
 	Shader(const GLchar* vertex_path, const GLchar* fragment_path);
 	void Use();
+	GLint GetShader() const;
 private:
 	void __init_shader(GLuint shader, const GLchar* const* shader_src);
 	GLuint m_program;

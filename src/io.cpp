@@ -63,6 +63,11 @@ void Shader::Use()
 	glUseProgram(m_program);
 }
 
+GLint Shader::GetShader() const
+{
+	return m_program;
+}
+
 void Shader::__init_shader(GLuint shader, const GLchar* const* shader_src)
 {
 	GLint succ = FAIL;
@@ -75,6 +80,6 @@ void Shader::__init_shader(GLuint shader, const GLchar* const* shader_src)
 	{
 		glGetShaderInfoLog(shader, gLogBuffSize, nullptr, logBuff);
 		spdlog::error("failed to compile shader");
-		spdlog::error("%s", logBuff);
+		spdlog::error("{}", logBuff);
 	}
 }
