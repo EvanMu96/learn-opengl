@@ -7,11 +7,24 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
+#include <tuple>
 
 #include <GL/glew.h>
 #include "GLFW/glfw3.h"
 
+typedef unsigned char byte;
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+class TextureImage
+{
+public:
+	TextureImage(const GLchar* image_path);
+	GLuint GetTexture() const;
+private:
+	GLuint m_texture;
+};
 
 // Shader Àà£¬·â×° OpenGL Shader
 class Shader

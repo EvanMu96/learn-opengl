@@ -1,5 +1,7 @@
 #include "io.h"
 #include "spdlog/spdlog.h"
+#include "SOIL2/SOIL2.h"
+
 
 #define SUCC 1
 #define FAIL 0
@@ -82,4 +84,26 @@ void Shader::__init_shader(GLuint shader, const GLchar* const* shader_src)
 		spdlog::error("failed to compile shader");
 		spdlog::error("{}", logBuff);
 	}
+}
+
+TextureImage::TextureImage(const GLchar* image_path)
+{
+	m_texture = SOIL_load_OGL_texture
+	(
+		image_path,
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+	);
+
+
+	if (m_texture == 0)
+	{
+		spdlog::error("Error on loading texture image");
+	}
+}
+
+GLuint TextureImage::GetTexture() const
+{
+	return m_texture;
 }

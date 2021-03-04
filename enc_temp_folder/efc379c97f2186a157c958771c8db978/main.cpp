@@ -34,8 +34,16 @@ void render_loop(GLFWwindow* window, Shader& shader, GLuint VAO, GLuint VBO, GLu
 		
 		shader.Use();
 
+		// 使用 uniform 更新传递到 shader program 的变量
+// 		GLfloat time_value = static_cast<GLfloat>(glfwGetTime());
+// 		GLfloat green_value = (sin(time_value) / 2) + 0.5f;
+// 		GLint vertex_color_loc = glGetUniformLocation(shader.GetShader(), "ourColor");
+// 		glUniform4f(vertex_color_loc, 0.0f, green_value, 0.0f, 1.0f);
+
 		// draw
+		//glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
+		//glUniform1i(glGetUniformLocation(shader.GetShader(), "ourTexture"), 0);
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -91,7 +99,7 @@ int main()
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	TextureImage tex_image("resources/wall.jpg");
+	TextureImage tex_image("resources/grunge-wall-texture.jpg");
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 
